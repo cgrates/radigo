@@ -224,11 +224,11 @@ type coderMock struct {
 	err error
 }
 
-func (cM *coderMock) Decode([]byte) (interface{}, string, error) {
+func (cM *coderMock) Decode([]byte) (any, string, error) {
 	cM.err = fmt.Errorf("error")
 	return nil, "", cM.err
 }
-func (cM *coderMock) Encode(interface{}) ([]byte, error) {
+func (cM *coderMock) Encode(any) ([]byte, error) {
 	return nil, nil
 }
 func (cM *coderMock) EncodeString(string) ([]byte, error) {
@@ -620,7 +620,7 @@ func TestAVPVSASetValueTypeInteger(t *testing.T) {
 		IntegerValue: codecs.IntegerCodec{},
 	}
 
-	var expval interface{} = uint32(9)
+	var expval any = uint32(9)
 	err := vsa.SetValue(dict, cdr)
 
 	if err != nil {
