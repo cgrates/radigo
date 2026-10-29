@@ -69,10 +69,7 @@ func DecodeUserPassword(p *Packet, a *AVP) error {
 		}
 	}
 
-	if i := bytes.IndexByte(dec, 0); i > -1 {
-		a.RawValue = dec[:i]
-	}
-	a.RawValue = dec
+	a.RawValue = bytes.TrimRight(dec, "\x00")
 	return nil
 
 }

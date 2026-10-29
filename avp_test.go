@@ -85,14 +85,20 @@ func TestEncodeDecodeUserPassword(t *testing.T) {
 		Authenticator: [16]byte{0x2a, 0xee, 0x86, 0xf0, 0x8d, 0x0d, 0x55, 0x96, 0x9c, 0xa5, 0x97, 0x8e,
 			0x0d, 0x33, 0x67, 0xa2},
 	}
-	pass := "CGRateSPassword1"
-	encd := EncodeUserPassword([]byte(pass), []byte(pkt.secret), pkt.Authenticator[:])
-	avp := &AVP{RawValue: encd}
-	if err := DecodeUserPassword(pkt, avp); err != nil {
-		t.Error(err)
-	}
-	if string(avp.RawValue) != pass {
-		t.Errorf("Expected <%q> received <%q>", pass, string(avp.RawValue))
+	for _, pass := range []string{"TestPassword123", "CGRateSPassword1", "TestPassword12345"} {
+		t.Run(pass, func(t *testing.T) {
+			// add 15 before integer division to round up to a multiple of 16 bytes
+			padded := make([]byte, (len(pass)+15)/16*16)
+			copy(padded, pass)
+			encd := EncodeUserPassword(padded, []byte(pkt.secret), pkt.Authenticator[:])
+			avp := &AVP{RawValue: encd}
+			if err := DecodeUserPassword(pkt, avp); err != nil {
+				t.Fatal(err)
+			}
+			if string(avp.RawValue) != pass {
+				t.Errorf("Expected <%q> received <%q>", pass, string(avp.RawValue))
+			}
+		})
 	}
 }
 
